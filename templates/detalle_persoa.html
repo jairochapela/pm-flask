@@ -4,37 +4,20 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proxecto {{nome}}</title>
+    <title>Persoa {{nome}}</title>
 </head>
 <body>
-    <h1>Detalles do proxecto "{{nome}}"</h1>
-    <p>{{descricion}}</p>
-    <p>Data de inicio: {{inicio}}</p>
-    <p>Data de fin: {{fin}}</p>
+    <h1>Detalles da persoa "{{nome}}"</h1>
+    <p>Código: {{codigo}}</p>
 
-    <h2>Participantes</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nome</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for p in persoas %}
-            <tr>
-                <td><a href="/persoas/{{p[0]}}">{{p[1]}}</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <h2>Tarefas</h2>
+    <h2>Tarefas pendentes</h2>
+
     <table class="table">
         <thead>
             <tr>
                 <th>Tarefa</th>
                 <th>Inicio</th>
                 <th>Vencimento</th>
-                <th>Fin</th>
             </tr>
         </thead>
         <tbody>
@@ -43,7 +26,6 @@
                 <td><a href="/tarefas/{{t[0]}}">{{t[1]}}</a></td>
                 <td>{{t[2]}}</td>
                 <td>{{t[3]}}</td>
-                <td>{{t[4]}}</td>
             </tr>
             {% endfor %}
         </tbody>

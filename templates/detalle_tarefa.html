@@ -4,15 +4,22 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proxecto {{nome}}</title>
+    <title>Tarefa {{nome}}</title>
 </head>
 <body>
-    <h1>Detalles do proxecto "{{nome}}"</h1>
-    <p>{{descricion}}</p>
+    <h1>Detalles da tarefa "{{nome}}"</h1>
     <p>Data de inicio: {{inicio}}</p>
-    <p>Data de fin: {{fin}}</p>
+    <p>Data de vencimento: {{vencimento}}</p>
 
-    <h2>Participantes</h2>
+    {% if fin %}
+    <p>Data de fin: {{fin}}</p>
+    {% else %}
+    <form action="/tarefas/{{id}}/completar" method="post">
+        <button type="submit">Completar tarefa</button>
+    </form>
+    {% endif %}
+
+    <h2>Colaboradores</h2>
     <table class="table">
         <thead>
             <tr>
@@ -27,23 +34,22 @@
             {% endfor %}
         </tbody>
     </table>
-    <h2>Tarefas</h2>
+
+    <h2>Intervencións</h2>
     <table class="table">
         <thead>
             <tr>
-                <th>Tarefa</th>
+                <th>Persoa</th>
                 <th>Inicio</th>
-                <th>Vencimento</th>
                 <th>Fin</th>
             </tr>
         </thead>
         <tbody>
-            {% for t in tarefas %}
+            {% for v in intervencions %}
             <tr>
-                <td><a href="/tarefas/{{t[0]}}">{{t[1]}}</a></td>
-                <td>{{t[2]}}</td>
-                <td>{{t[3]}}</td>
-                <td>{{t[4]}}</td>
+                <td><a href="/persoas/{{v[0]}}">{{v[1]}}</a></td>
+                <td>{{v[2]}}</td>
+                <td>{{v[3]}}</td>
             </tr>
             {% endfor %}
         </tbody>

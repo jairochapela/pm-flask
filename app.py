@@ -1,11 +1,14 @@
 from mysql.connector import connect, Error
 from flask import Flask, redirect
 from flask import render_template
-
-def conexion_bd():
-    return connect(host="127.0.0.1", user='jairo', password='aaa', database='xestorproxectos')
+from flask_dotenv import DotEnv
+import os
 
 app = Flask(__name__)
+env = DotEnv(app)
+
+def conexion_bd():
+    return connect(host=os.environ['DB_HOST'], user=os.environ['DB_USER'], password=os.environ['DB_PASSWORD'], database=os.environ['DB_NAME'])
 
 
 @app.route("/")

@@ -45,53 +45,49 @@ def detalle_proxecto(id):
 
 @app.get("/persoas/<id>")
 def detalle_persoa(id):
-    connection = conexion_bd()
-    cursor = connection.cursor()
-    cursor.execute("SELECT id,nome,codigo FROM persoas WHERE id = %s", (id,))
-    proxecto = cursor.fetchone()
+    c = conexion_bd()
+    r = c.execute("SELECT id,nome,codigo FROM persoas WHERE id = %s", (id,))
+    proxecto = r.fetchone()
     p_id,nome,codigo = proxecto
 
-    cursor.execute("""
+    r = c.execute("""
         SELECT tarefas.id,tarefas.nome,tarefas.inicio,tarefas.vencimento FROM asignacions
         JOIN tarefas ON asignacions.tarefa_id = tarefas.id
         WHERE persoa_id = %s AND fin IS NULL
         """, (id,))
-    tarefas = cursor.fetchall()
+    tarefas = r.fetchall()
 
     return render_template('detalle_persoa.html', id=p_id, nome=nome, codigo=codigo, tarefas=tarefas)
 
 
 @app.get("/tarefas/<id>")
 def detalle_tarefa(id):
-    connection = conexion_bd()
-    cursor = connection.cursor()
-    cursor.execute("SELECT id,nome,inicio,fin,vencimento FROM tarefas WHERE id = %s", (id,))
-    tarefa = cursor.fetchone()
+    c = conexion_bd()
+    r = c.execute("SELECT id,nome,inicio,fin,vencimento FROM tarefas WHERE id = %s", (id,))
+    tarefa = r.fetchone()
     p_id,nome,inicio,fin,vencimento = tarefa
 
-    cursor.execute("""
+    r = c.execute("""
         SELECT asignacions.persoa_id AS id,persoas.nome AS nome FROM asignacions
         JOIN persoas ON asignacions.persoa_id = persoas.id
         WHERE tarefa_id = %s
         """, (id,))
-    persoas = cursor.fetchall()
+    persoas = r.fetchall()
 
 
-    cursor.execute("""
+    r = c.execute("""
         SELECT intervencions.id,persoas.nome,inicio,fin FROM intervencions
         JOIN persoas ON intervencions.persoa_id = persoas.id
         WHERE tarefa_id = %s
         """, (id,))
-    intervencions = cursor.fetchall()
+    intervencions = r.fetchall()
 
     return render_template('detalle_tarefa.html', id=p_id, nome=nome, inicio=inicio, fin=fin, vencimento=vencimento, persoas=persoas, intervencions=intervencions)
 
 @app.post("/tarefas/<id>/completar")
 def completar_tarefa(id):
-    connection = conexion_bd()
-    cursor = connection.cursor()
-    cursor.execute("UPDATE tarefas SET fin=NOW() WHERE id = %s", (id,))
-    connection.commit()
+    c = conexion_bd()
+    c.execute("UPDATE tarefas SET fin=NOW() WHERE id = %s", (id,))
     return redirect("/tarefas/{0}".format(id))
 
 

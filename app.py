@@ -1,4 +1,4 @@
-from mysql.connector import connect, Error
+from sqlalchemy import create_engine, text
 from flask import Flask, redirect
 from flask import render_template
 from flask_dotenv import DotEnv
@@ -6,9 +6,13 @@ import os
 
 app = Flask(__name__)
 env = DotEnv(app)
+dbengine = None
 
 def conexion_bd():
-    return connect(host=os.environ['DB_HOST'], user=os.environ['DB_USER'], password=os.environ['DB_PASSWORD'], database=os.environ['DB_NAME'])
+    global dbengine
+    if not dbengine:
+        dbengine = create_engine('mysql+pymysql://{0}:{1}@{2}:3306/{3}'.format(os.environ['DB_USER'], os.environ['DB_PASSWORD'], os.environ['DB_HOST'], os.environ['DB_NAME']))
+    return dbengine.connect()
 
 
 @app.route("/")
@@ -17,27 +21,24 @@ def principal():
 
 @app.get("/proxectos")
 def listar_proxectos():
-    connection = conexion_bd()
-    cursor = connection.cursor()
-    cursor.execute("SELECT id,nome,inicio,fin FROM proxectos")
-    proxectos = cursor.fetchall()
+    c = conexion_bd()
+    r = c.execute("SELECT id,nome,inicio,fin FROM proxectos")
+    proxectos = r.fetchall()
     return render_template('lista_proxectos.html', proxectos=proxectos)
 
 
 @app.get("/proxectos/<id>")
 def detalle_proxecto(id):
-    connection = conexion_bd()
-    cursor = connection.cursor()
-    cursor.execute("SELECT id,nome,descricion,inicio,fin FROM proxectos WHERE id = %s", (id,))
-    proxecto = cursor.fetchone()
+    c = conexion_bd()
+    r = c.execute("SELECT id,nome,descricion,inicio,fin FROM proxectos WHERE id = %s", (id,))
+    proxecto = r.fetchone()
     p_id,nome,descricion,inicio,fin = proxecto
-    descricion = descricion.decode('utf-8')
 
-    cursor.execute("SELECT id,nome,inicio,vencimento,fin FROM tarefas WHERE proxecto_id = %s", (id,))
-    tarefas = cursor.fetchall()
+    r = c.execute("SELECT id,nome,inicio,vencimento,fin FROM tarefas WHERE proxecto_id = %s", (id,))
+    tarefas = r.fetchall()
 
-    cursor.execute("SELECT participacion.persoa_id AS id,persoas.nome AS nome FROM participacion JOIN persoas ON participacion.persoa_id = persoas.id WHERE proxecto_id = %s", (id,))
-    persoas = cursor.fetchall()
+    c.execute("SELECT participacion.persoa_id AS id,persoas.nome AS nome FROM participacion JOIN persoas ON participacion.persoa_id = persoas.id WHERE proxecto_id = %s", (id,))
+    persoas = r.fetchall()
 
     return render_template('detalle_proxecto.html', id=p_id, nome=nome, descricion=descricion, inicio=inicio, fin=fin, tarefas=tarefas, persoas=persoas)
 
@@ -92,3 +93,7 @@ def completar_tarefa(id):
     cursor.execute("UPDATE tarefas SET fin=NOW() WHERE id = %s", (id,))
     connection.commit()
     return redirect("/tarefas/{0}".format(id))
+
+
+if __name__ == '__main__':
+    app.run()
